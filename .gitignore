@@ -1,0 +1,4 @@
+vendor/*
+*.json
+BotToken
+lastMsgID
