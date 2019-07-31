@@ -14,6 +14,8 @@ import (
 	"google.golang.org/api/gmail/v1"
 )
 
+var gmailClient *gmail.Service
+
 // Retrieve a token, saves the token, then returns the generated client.
 func getClient(config *oauth2.Config) *http.Client {
 	// The file token.json stores the user's access and refresh tokens, and is
@@ -70,23 +72,26 @@ func saveToken(path string, token *oauth2.Token) {
 }
 
 func getService() *gmail.Service {
-	b, err := ioutil.ReadFile("credentials.json")
-	if err != nil {
-		log.Fatalf("Unable to read client secret file: %v", err)
+	if gmailClient == nil {
+		b, err := ioutil.ReadFile("credentials.json")
+		if err != nil {
+			log.Fatalf("Unable to read client secret file: %v", err)
+		}
+
+		// If modifying these scopes, delete your previously saved token.json.
+		config, err := google.ConfigFromJSON(b, gmail.GmailReadonlyScope)
+		if err != nil {
+			log.Fatalf("Unable to parse client secret file to config: %v", err)
+		}
+		client := getClient(config)
+
+		gmailClient, err = gmail.New(client)
+		if err != nil {
+			log.Fatalf("Unable to retrieve Gmail client: %v", err)
+		}
 	}
 
-	// If modifying these scopes, delete your previously saved token.json.
-	config, err := google.ConfigFromJSON(b, gmail.GmailReadonlyScope)
-	if err != nil {
-		log.Fatalf("Unable to parse client secret file to config: %v", err)
-	}
-	client := getClient(config)
-
-	srv, err := gmail.New(client)
-	if err != nil {
-		log.Fatalf("Unable to retrieve Gmail client: %v", err)
-	}
-	return srv
+	return gmailClient
 }
 
 //GetNewestMessageID gets the Message.Id of ther first message in the list.
@@ -106,22 +111,7 @@ func GetNewestMessageID() string {
 
 // GetMessage retrieves the detail of a message specified by ID.
 func GetMessage(ID string) *gmail.Message {
-	b, err := ioutil.ReadFile("credentials.json")
-	if err != nil {
-		log.Fatalf("Unable to read client secret file: %v", err)
-	}
-
-	// If modifying these scopes, delete your previously saved token.json.
-	config, err := google.ConfigFromJSON(b, gmail.GmailReadonlyScope)
-	if err != nil {
-		log.Fatalf("Unable to parse client secret file to config: %v", err)
-	}
-	client := getClient(config)
-
-	srv, err := gmail.New(client)
-	if err != nil {
-		log.Fatalf("Unable to retrieve Gmail client: %v", err)
-	}
+	srv := getService()
 	user := "me"
 	m, err := srv.Users.Messages.Get(user, ID).Format("metadata").MetadataHeaders("Date", "Subject", "From").Do()
 	if err != nil {
