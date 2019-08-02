@@ -12,7 +12,7 @@ import (
 
 //Loop runs forever getting command from user and retrieving mails.
 func Loop() {
-	botToken, err := ioutil.ReadFile("BotToken")
+	botToken, err := ioutil.ReadFile("BotToken") //TODO: move to config.json
 	check(err)
 	bot, err := tgbotapi.NewBotAPI(string(botToken))
 	check(err)
@@ -38,7 +38,7 @@ func Loop() {
 			switch update.Message.Command() {
 			case "start":
 				if !started {
-					go enterPeriodicTask(bot, update.Message.Chat.ID, checkNewMsg, 120)
+					go enterPeriodicTask(bot, update.Message.Chat.ID, checkNewMsg, 120) //TODO: make interval configurable.
 					msg.Text = "Start forwarding mails."
 					started = true
 				} else {
@@ -87,7 +87,7 @@ func checkNewMsg(bot *tgbotapi.BotAPI, ChatID int64) {
 		chatMsg := tgbotapi.NewMessage(ChatID, "")
 		chatMsg.Text += ("*" + headers["From"] + "*\n")
 		chatMsg.Text += (headers["Subject"] + "\n\n")
-		chatMsg.Text += (headers["Date"] + "\n")
+		chatMsg.Text += (headers["Date"] + "\n") //TODO: Convert UTC to local TZ specified by config.
 		chatMsg.Text += msg.Snippet
 		chatMsg.ParseMode = "Markdown"
 		bot.Send(chatMsg)
