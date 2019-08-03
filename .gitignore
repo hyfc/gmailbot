@@ -2,3 +2,5 @@ vendor/*
 *.json
 BotToken
 lastMsgID
+*.exe
+main

@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
@@ -12,9 +13,11 @@ import (
 
 //Loop runs forever getting command from user and retrieving mails.
 func Loop() {
-	botToken, err := ioutil.ReadFile("BotToken") //TODO: move to config.json
+	tokenBytes, err := ioutil.ReadFile("BotToken") //TODO: move to config.json
 	check(err)
-	bot, err := tgbotapi.NewBotAPI(string(botToken))
+	botToken := strings.Replace(string(tokenBytes), "\n", "", 1)
+
+	bot, err := tgbotapi.NewBotAPI(botToken)
 	check(err)
 
 	bot.Debug = false
