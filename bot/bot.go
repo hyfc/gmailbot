@@ -106,6 +106,7 @@ func checkNewMsg(bot *tgbotapi.BotAPI, ChatID int64) {
 		chatMsg := tgbotapi.NewMessage(ChatID, "")
 		chatMsg.Text += ("*" + headers["From"] + "*\n")
 		chatMsg.Text += (headers["Subject"] + "\n\n")
+		log.Printf("New email from %s: %s\n", headers["From"], headers["Subject"])
 		chatMsg.Text += (headers["Date"] + "\n") //TODO: Convert UTC to local TZ specified by config.
 		chatMsg.Text += msg.Snippet
 		chatMsg.ParseMode = "Markdown"
