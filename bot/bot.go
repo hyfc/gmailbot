@@ -1,27 +1,32 @@
 package bot
 
 import (
+	"encoding/json"
 	"gmailbot/gmail"
 	"io/ioutil"
 	"log"
 	"os"
-	"strings"
 	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
+type config struct {
+	BotToken string `json:"bot_token"`
+	UserName string `json:"user_name"`
+}
+
 //Loop runs forever getting command from user and retrieving mails.
 func Loop() {
-	tokenBytes, err := ioutil.ReadFile("BotToken") //TODO: move to config.json
+	jsonPath := "config.json"
+	data, err := ioutil.ReadFile(jsonPath)
 	check(err)
-	botToken := strings.Replace(string(tokenBytes), "\n", "", 1)
 
-	nameBytes, err := ioutil.ReadFile("UserName")
+	var conf config
+	err = json.Unmarshal(data, &conf)
 	check(err)
-	userName := string(nameBytes)
 
-	bot, err := tgbotapi.NewBotAPI(botToken)
+	bot, err := tgbotapi.NewBotAPI(conf.BotToken)
 	check(err)
 
 	bot.Debug = false
@@ -42,7 +47,7 @@ func Loop() {
 
 		if update.Message.IsCommand() {
 			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
-			if update.Message.Chat.UserName != userName {
+			if update.Message.Chat.UserName != conf.UserName {
 				msg.Text = "User Unauthorized."
 				bot.Send(msg)
 				continue
