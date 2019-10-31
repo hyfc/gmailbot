@@ -14,6 +14,7 @@ import (
 type config struct {
 	BotToken string `json:"bot_token"`
 	UserName string `json:"user_name"`
+	Interval int64  `json:"interval"`
 }
 
 //Loop runs forever getting command from user and retrieving mails.
@@ -56,7 +57,7 @@ func Loop() {
 			switch update.Message.Command() {
 			case "start":
 				if !started {
-					go enterPeriodicTask(bot, update.Message.Chat.ID, checkNewMsg, 120) //TODO: make interval configurable.
+					go enterPeriodicTask(bot, update.Message.Chat.ID, checkNewMsg, conf.Interval)
 					msg.Text = "Start forwarding mails."
 					started = true
 				} else {
