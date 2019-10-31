@@ -17,6 +17,10 @@ func Loop() {
 	check(err)
 	botToken := strings.Replace(string(tokenBytes), "\n", "", 1)
 
+	nameBytes, err := ioutil.ReadFile("UserName")
+	check(err)
+	userName := string(nameBytes)
+
 	bot, err := tgbotapi.NewBotAPI(botToken)
 	check(err)
 
@@ -38,6 +42,12 @@ func Loop() {
 
 		if update.Message.IsCommand() {
 			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
+			if update.Message.Chat.UserName != userName {
+				msg.Text = "User Unauthorized."
+				bot.Send(msg)
+				continue
+			}
+
 			switch update.Message.Command() {
 			case "start":
 				if !started {

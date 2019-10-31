@@ -1,6 +1,7 @@
 vendor/*
 *.json
 BotToken
+UserName
 lastMsgID
 *.exe
 main
